@@ -12,6 +12,7 @@
 #include <cppast/cpp_entity_kind.hpp>        // for the cpp_entity_kind definition
 #include <cppast/cpp_forward_declarable.hpp> // for is_definition()
 #include <cppast/cpp_namespace.hpp>          // for cpp_namespace
+#include <cppast/detail/intrusive_list.hpp>
 
 // print help options
 void print_help(const cxxopts::Options& options)
@@ -39,6 +40,21 @@ void print_entity(std::ostream& out, const cppast::cpp_entity& e)
     // print whether or not it is a definition
     if (cppast::is_definition(e))
         out << " [definition]";
+
+    if(e.kind() == cppast::cpp_entity_kind::class_t){
+        auto& c = static_cast<const cppast::cpp_class&>(e);
+        int _count = 0;
+        out << "{";
+        for (auto& base : c.bases()){
+            if (_count > 0) {
+                out << "|";
+            }else{
+                _count++;
+            }
+            out << base.name();
+        }
+        out << "}";
+    }
 
     if (e.kind() == cppast::cpp_entity_kind::language_linkage_t)
         // no need to print additional information for language linkages
@@ -142,7 +158,7 @@ void print_ast(std::ostream& out, const cppast::cpp_file& file)
             // we have visited all children of a container,
             // remove prefix
             prefix.pop_back();
-            prefix.pop_back();
+            // prefix.pop_back();
         }
         else
         {
@@ -151,14 +167,14 @@ void print_ast(std::ostream& out, const cppast::cpp_file& file)
             if (info.last_child)
             {
                 if (info.event == cppast::visitor_info::container_entity_enter)
-                    prefix += "  ";
+                    prefix += "|";
                 out << "+-";
             }
             else
             {
                 if (info.event == cppast::visitor_info::container_entity_enter)
-                    prefix += "| ";
-                out << "|-";
+                    prefix += "|";
+                out << "--";
             }
 
             print_entity(out, e);
