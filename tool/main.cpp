@@ -13,6 +13,7 @@
 #include <cppast/cpp_forward_declarable.hpp> // for is_definition()
 #include <cppast/cpp_namespace.hpp>          // for cpp_namespace
 #include <cppast/detail/intrusive_list.hpp>
+#include <cppast/cpp_member_function.hpp>
 
 // print help options
 void print_help(const cxxopts::Options& options)
@@ -44,6 +45,7 @@ void print_entity(std::ostream& out, const cppast::cpp_entity& e)
     if(e.kind() == cppast::cpp_entity_kind::class_t){
         auto& c = static_cast<const cppast::cpp_class&>(e);
         int _count = 0;
+
         out << "{";
         for (auto& base : c.bases()){
             if (_count > 0) {
@@ -54,6 +56,13 @@ void print_entity(std::ostream& out, const cppast::cpp_entity& e)
             out << base.name();
         }
         out << "}";
+    }
+
+    if(e.kind() == cppast::cpp_entity_kind::member_function_t){
+        auto& func = static_cast<const cppast::cpp_member_function&>(e);
+        if (is_pure(func.virtual_info())){
+            out << " is_pure ";
+        }
     }
 
     if (e.kind() == cppast::cpp_entity_kind::language_linkage_t)
