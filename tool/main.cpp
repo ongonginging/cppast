@@ -152,7 +152,7 @@ void print_entity(std::ostream& out, const cppast::cpp_entity& e)
 void print_ast(std::ostream& out, const cppast::cpp_file& file)
 {
     // print file name
-    out << "AST for '" << file.name() << "':\n";
+    out << file.name() << "\n";
     std::string prefix; // the current prefix string
     // recursively visit file and all children
     cppast::visit(file, [&](const cppast::cpp_entity& e, cppast::visitor_info info) {
